@@ -4,7 +4,7 @@ use structopt::StructOpt;
 use env_logger::Env;
 use amqp_manager::prelude::*;
 
-use log::{info,warn};
+use log::{info};
 use ampq_rust_demo::quote_client::QuoteClient;
 
 #[derive(Debug, StructOpt)]

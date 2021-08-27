@@ -13,6 +13,27 @@ services:
     #   RABBITMQ_PASSWORD: ank
     networks:
       - ampq-demo
+  producer:
+    build:
+      context: .
+      dockerfile: Dockerfile.producer
+    restart: always
+    environment: 
+      SERVER: "amqp://guest:guest@rabbitmq:5672//"
+      LEVEL: info
+    networks:
+      - ampq-demo
+  consumer:
+    build:
+      context: ./
+      dockerfile: Dockerfile.consumer
+    restart: always
+    environment: 
+      SERVER: "amqp://guest:guest@rabbitmq:5672//"
+      LEVEL: info
+    networks:
+      - ampq-demo      
+
 networks:
   ampq-demo:
     driver: bridge

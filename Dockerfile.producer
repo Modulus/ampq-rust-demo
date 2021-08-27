@@ -1,5 +1,5 @@
 
-FROM rust:1.52-buster as builder
+FROM rust:1.54-buster as builder
 
 ENV APP_FOLDER=/opt/app
 RUN mkdir "${APP_FOLDER}"
@@ -7,17 +7,20 @@ RUN mkdir "${APP_FOLDER}"
 # In this case one does not need to set argument
 # The env var RUST_LOG will be picked up by the env_logger in the applicatin and set correctly
 ENV RUST_LOG="info"
-ENV BIND="127.0.0.0:8080"
+ENV SERVER="127.0.0.0:5672"
 WORKDIR "${APP_FOLDER}"
 COPY Cargo.toml Cargo.lock "${APP_FOLDER}/"
 COPY src/ "${APP_FOLDER}/src"
-RUN cargo build --release
+RUN cargo build --bin producer --release
 
+RUN ls -la target/release
 
 
 # FROM gcr.io/distroless/cc
 
-FROM gcr.io/distroless/static-debian10
+#FROM gcr.io/distroless/static-debian10
+
+FROM alpine
 
 
 # ENV APP_FOLDER=/opt/app
@@ -29,7 +32,6 @@ WORKDIR /opt
 
 # USER app
 # COPY --chown=app --from="builder" "${APP_FOLDER}/target/release/shotlog" .
-COPY --from="builder" "${APP_FOLDER}/target/release/shotlog" .
+COPY --from="builder" "${APP_FOLDER}/target/release" .
 
-EXPOSE 8080
-CMD "/opt/shotlog" "--server" ${BIND}"--level" ${RUST_LOG}
+CMD "/opt/producer" "--server" ${SERVER} "--level" ${RUST_LOG}

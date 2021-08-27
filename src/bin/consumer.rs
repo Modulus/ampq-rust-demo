@@ -42,7 +42,7 @@ async fn main() {
 
 
     
-    let consumer = amqp_session
+     amqp_session
     .create_consumer_with_delegate(
         CreateConsumer {
             queue_name: &queue_name,
