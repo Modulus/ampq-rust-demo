@@ -1,6 +1,7 @@
 use serde::Deserialize;
 use reqwest;
-use reqwest::Error;
+
+use log::info;
 
 #[derive(Deserialize, Debug)]
 pub struct Message {
@@ -9,20 +10,20 @@ pub struct Message {
 
 
 pub struct QuoteClient{
-    url: String
+    pub url: String
 }
 
 impl QuoteClient{
     pub async fn get(&self) -> String {
-        println!("{}", self.url);
+        info!("Calling url: {}", self.url);
         let response = reqwest::get(&self.url).await.expect("Failed to get response");
     
         let message : Message = response.json().await.expect("Failed to convert to json!");
     
         
-        println!("{:?}", message);
+        info!("Got message {:?}", message);
 
-        return String::from("Nullion!");
+        return String::from(message.data.first().expect("Failed to extract quote"));
     }
 }
 

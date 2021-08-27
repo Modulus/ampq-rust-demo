@@ -1,9 +1,11 @@
+use std::{thread, time};
+
 use structopt::StructOpt;
 use env_logger::Env;
 use amqp_manager::prelude::*;
-use futures::FutureExt;
 
 use log::{info,warn};
+use ampq_rust_demo::quote_client::QuoteClient;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name="demo", about="Application variables")]
@@ -18,7 +20,7 @@ struct Options {
 
 #[tokio::main]
 async fn main() {
-    println!("Hello, world!");
+    info!("Hello, world!");
     let cli_options = Options::from_args();
 
     info!("server: {}", cli_options.server);
@@ -40,48 +42,21 @@ async fn main() {
         ..Default::default()
     };
     amqp_session.create_queue(create_queue_op.clone()).await.expect("create_queue");
-    amqp_session
-    .publish_to_routing_key(PublishToRoutingKey {
-        routing_key: &queue_name,
-        payload: "Hello World".as_bytes(),
-        ..Default::default()
-    })
-    .await
-    .expect("publish_to_queue");
-
-
-    //Consumer
-
-    amqp_session
-    .create_consumer_with_delegate(
-        CreateConsumer {
-            queue_name: &queue_name,
-            consumer_name: "consumer-name",
+    loop {
+        let client = QuoteClient{url: format!("http://loremricksum.com/api/?paragraphs={paragraphs}&quotes={quotes}", paragraphs=1, quotes=1)};
+        let quote = client.get().await;
+        info!("Sending quote: {}", quote);
+        amqp_session
+        .publish_to_routing_key(PublishToRoutingKey {
+            routing_key: &queue_name,
+            payload: quote.as_bytes(),
             ..Default::default()
-        },
-        |delivery: DeliveryResult| async {
-            if let Ok(Some((channel, delivery))) = delivery {
-               let payload = std::str::from_utf8(&delivery.data).unwrap();
-                assert_eq!(payload, "Hello World");
-                channel
-                    .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
-                    .map(|_| ())
-                    .await;
-            }
-        },
-    )
-    .await
-    .expect("create_consumer");
-
-
-    let queue = amqp_session.create_queue(create_queue_op.clone()).await.expect("create_queue");
-
-    if queue.message_count() <= 0 {
-        info!("Message queue is: {}", queue.message_count());
-        info!("All messages has been consumed!");
-
+        })
+        .await
+        .expect("publish_to_queue");
+        info!("Waiting...");
+        thread::sleep(time::Duration::from_secs(2));
     }
-    else {
-        warn!("Messages has not been consumed!");
-    }
+
+
 }

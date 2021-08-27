@@ -1,7 +1,7 @@
 use structopt::StructOpt;
 use env_logger::Env;
 use amqp_manager::prelude::*;
-use futures::FutureExt;
+use futures::{FutureExt, TryStreamExt};
 
 use log::{info,warn};
 
@@ -39,30 +39,20 @@ async fn main() {
         },
         ..Default::default()
     };
-    amqp_session.create_queue(create_queue_op.clone()).await.expect("create_queue");
-    amqp_session
-    .publish_to_routing_key(PublishToRoutingKey {
-        routing_key: &queue_name,
-        payload: "Hello World".as_bytes(),
-        ..Default::default()
-    })
-    .await
-    .expect("publish_to_queue");
 
 
-    //Consumer
-
-    amqp_session
+    
+    let consumer = amqp_session
     .create_consumer_with_delegate(
         CreateConsumer {
             queue_name: &queue_name,
-            consumer_name: "consumer-name",
+            consumer_name: "quote-consumer",
             ..Default::default()
         },
         |delivery: DeliveryResult| async {
             if let Ok(Some((channel, delivery))) = delivery {
                let payload = std::str::from_utf8(&delivery.data).unwrap();
-                assert_eq!(payload, "Hello World");
+                info!("Message was: {}", payload);
                 channel
                     .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
                     .map(|_| ())
@@ -73,15 +63,16 @@ async fn main() {
     .await
     .expect("create_consumer");
 
-
     let queue = amqp_session.create_queue(create_queue_op.clone()).await.expect("create_queue");
 
-    if queue.message_count() <= 0 {
-        info!("Message queue is: {}", queue.message_count());
-        info!("All messages has been consumed!");
+    // if queue.message_count() <= 0 {
+    //     info!("Message queue is: {}", queue.message_count());
+    //     info!("All messages has been consumed!");
 
-    }
-    else {
-        warn!("Messages has not been consumed!");
-    }
+    // }
+    // else {
+    //     warn!("Messages has not been consumed!");
+    // }
+
+
 }
