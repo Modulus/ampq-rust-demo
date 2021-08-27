@@ -4,6 +4,7 @@ use amqp_manager::prelude::*;
 use futures::FutureExt;
 
 use log::{info,warn};
+mod quote_client;
 
 #[derive(Debug, StructOpt)]
 #[structopt(name="demo", about="Application variables")]
