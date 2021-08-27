@@ -19,6 +19,6 @@ jobs:
     - name: Build producer
       run: cargo build --bin producer --verbose
     - name: Build consumer
-      cargo build --bin consumer --verbose
+      run: cargo build --bin consumer --verbose
     - name: Run tests
       run: cargo test --verbose
