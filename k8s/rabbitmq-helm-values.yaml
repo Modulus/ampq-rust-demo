@@ -1,0 +1,4 @@
+replicaCount: 3
+auth:
+  username: someone
+  password: nothing

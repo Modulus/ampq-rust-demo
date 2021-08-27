@@ -1,0 +1,18 @@
+version: "3.9"
+services:
+  rabbitmq:
+    image: rabbitmq:3.9-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15671:15671"
+      - "15672:15672"
+    restart: always
+    # environment:
+    #   RABBITMQ_USER: twoflower
+    #   RABBITMQ_PASSWORD: ank
+    networks:
+      - ampq-demo
+networks:
+  ampq-demo:
+    driver: bridge
