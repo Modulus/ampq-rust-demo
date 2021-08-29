@@ -1,37 +1,28 @@
 
 FROM rust:1.54-buster as builder
 
-ENV APP_FOLDER=/opt/app
-RUN mkdir "${APP_FOLDER}"
 
 # In this case one does not need to set argument
 # The env var RUST_LOG will be picked up by the env_logger in the applicatin and set correctly
-ENV RUST_LOG="info"
-ENV SERVER="127.0.0.0:5672"
-WORKDIR "${APP_FOLDER}"
-COPY Cargo.toml Cargo.lock "${APP_FOLDER}/"
-COPY src/ "${APP_FOLDER}/src"
+WORKDIR /opt/app
+COPY . /opt/app/
 RUN cargo build --bin producer --release
 
-RUN ls -la target/release
 
 
-# FROM gcr.io/distroless/cc
+FROM ubuntu:20.04 as runner
+# FROM alpine
 
-#FROM gcr.io/distroless/static-debian10
+# # ENV APP_FOLDER=/opt/app
 
-FROM alpine
+RUN apt update && apt install -y openssl 
 
-
-# ENV APP_FOLDER=/opt/app
-
-ENV APP_FOLDER=/opt/app
 # RUN useradd app && mkdir -p "${APP_FOLDER}" && chown -R app:app "${APP_FOLDER}"
 WORKDIR /opt
 
-
 # USER app
 # COPY --chown=app --from="builder" "${APP_FOLDER}/target/release/shotlog" .
-COPY --from="builder" "${APP_FOLDER}/target/release" .
+COPY --from=builder /opt/app/target/release /opt/app/target/release
 
-CMD "/opt/producer" "--server" ${SERVER} "--level" ${RUST_LOG}
+CMD [ "/opt/app/target/release/producer"]
+

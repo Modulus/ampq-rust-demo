@@ -10,21 +10,21 @@ use ampq_rust_demo::quote_client::QuoteClient;
 #[derive(Debug, StructOpt)]
 #[structopt(name="demo", about="Application variables")]
 struct Options {
-    #[structopt(short= "s" , long = "server", default_value="locathost:5672")]
+    #[structopt(short= "s" , env="SERVER", long = "server", default_value="locathost:5672")]
     server: String,
 
-    #[structopt(short ="l", long = "level", default_value="INFO")]
+    #[structopt(short ="l", env = "LEVEL", long = "level", default_value="INFO")]
     level: String
 }
 
 
 #[tokio::main]
 async fn main() {
-    info!("Hello, world!");
+    println!("Hello, world!");
     let cli_options = Options::from_args();
 
-    info!("server: {}", cli_options.server);
-    info!("level: {}", cli_options.level);
+    println!("server: {}", cli_options.server);
+    println!("level: {}", cli_options.level);
     env_logger::Builder::from_env(Env::default().default_filter_or(cli_options.level)).init();
 
     let manager = AmqpManager::new(&cli_options.server, ConnectionProperties::default());

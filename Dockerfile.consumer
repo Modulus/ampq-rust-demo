@@ -15,25 +15,16 @@ RUN cargo build --bin consumer --release
 
 
 
-# FROM gcr.io/distroless/cc
-
-#FROM gcr.io/distroless/static-debian10
-
-FROM alpine
+FROM ubuntu:20.04 as runner
 
 
-# ENV APP_FOLDER=/opt/app
 
 ENV APP_FOLDER=/opt/app
 # RUN useradd app && mkdir -p "${APP_FOLDER}" && chown -R app:app "${APP_FOLDER}"
 WORKDIR /opt
 
-
 # USER app
 # COPY --chown=app --from="builder" "${APP_FOLDER}/target/release/shotlog" .
-COPY --from="builder" "${APP_FOLDER}/target/release/consumer" .
+COPY --from=builder /opt/app/target/release /opt/app/target/release
 
-EXPOSE 8080
-RUN ls /opt/
-
-CMD "/opt/app/consumer" "--server" ${SERVER}"--level" ${RUST_LOG}
+CMD [ "/opt/app/target/release/consumer"]
