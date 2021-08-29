@@ -19,7 +19,7 @@ services:
       dockerfile: Dockerfile.producer
     restart: always
     environment: 
-      SERVER: "amqp://guest:guest@rabbitmq:5672//"
+      SERVER: "amqp://guest:guest@rabbitmq:5672"
       LEVEL: INFO
       RUST_BACKTRACE: full 
       RUST_LOG: INFO
@@ -33,7 +33,7 @@ services:
       dockerfile: Dockerfile.consumer
     restart: always
     environment: 
-      SERVER: "amqp://guest:guest@rabbitmq:5672//"
+      SERVER: "amqp://guest:guest@rabbitmq:5672"
       LEVEL: INFO
       RUST_BACKTRACE: full
       RUST_LOG: INFO
