@@ -11,9 +11,7 @@ env:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v2
     - name: Build producer
@@ -22,3 +20,20 @@ jobs:
       run: cargo build --bin consumer --verbose
     - name: Run tests
       run: cargo test --verbose
+  package:
+    needs: build 
+    runs-on: ubuntu-latest    
+    steps:
+      - uses: actions/checkout@v2
+      # - name: login
+      #   uses: docker/login-action@v1
+      #   with: 
+      #     registry: ghcr.io
+      #     username: ${{ github.repository_owner }}
+      #     password: ${{ secrets.CR_PAT }}
+      - name: Docker build producer
+        run: docker build -t ghcr.io/modulus/ampq-demp-producer:latest -f Dockerfile.producer .
+      # - name: Docker push
+      #   run: docker push ghcr.io/modulus/shotlog:latest 
+      - name: Docker build consumer
+        run: docker build -t ghcr.io/modulus/ampq-demp-producer:latest -f Dockerfile.consumer .
