@@ -3,6 +3,7 @@ kind: Deployment
 metadata:
   name: producer
 spec:
+  replicas: 1
   selector:
     matchLabels:
       app: producer
@@ -10,6 +11,7 @@ spec:
     metadata:
       labels:
         app: producer
+        what: demo        
     spec:
       containers:
       - name: producer
@@ -31,6 +33,7 @@ kind: Deployment
 metadata:
   name: consumer
 spec:
+  replicas: 1  
   selector:
     matchLabels:
       app: consumer
@@ -38,6 +41,7 @@ spec:
     metadata:
       labels:
         app: consumer
+        what: demo              
     spec:
       containers:
       - name: consumer
