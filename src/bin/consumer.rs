@@ -1,80 +1,55 @@
-use structopt::StructOpt;
+use std::{thread, time};
+
+use ampq_rust_demo::options::Options;
+
 use env_logger::Env;
-use amqp_manager::prelude::*;
-use futures::{FutureExt, TryStreamExt};
-use std::env;
+use amiquip::{Connection, ConsumerMessage, ConsumerOptions, QueueDeclareOptions, Result};
+use structopt::StructOpt;
+
 
 use log::{info,warn};
 
-#[derive(Debug, StructOpt)]
-#[structopt(name="demo", about="Application variables")]
-struct Options {
-    #[structopt(short= "s" , env="SERVER", long = "server", default_value="locathost:5672")]
-    server: String,
-
-    #[structopt(short ="l", env = "LEVEL", long = "level", default_value="INFO")]
-    level: String
-}
-
 
 #[tokio::main]
-async fn main() {
+async fn main() -> Result<()>{
     println!("Hello, world!");
     let cli_options = Options::from_args();
 
 
-    println!("server: {}", cli_options.server);
-    println!("level: {}", cli_options.level);
+    info!("server: {}", cli_options.server);
+    info!("level: {}", cli_options.level);
     env_logger::Builder::from_env(Env::default().default_filter_or(cli_options.level)).init();
 
-    let manager = AmqpManager::new(&cli_options.server, ConnectionProperties::default());
-    let conn = manager.connect().await.expect("Failed to connect to ampq server!");
-    let amqp_session = AmqpManager::create_session(&conn).await.expect("Failed to create AMPQ session!");
-
-    let queue_name = "messages";
-
-    let create_queue_op = CreateQueue {
-        queue_name: &queue_name,
-        options: QueueDeclareOptions {
-            auto_delete: false,
-            ..Default::default()
-        },
-        ..Default::default()
-    };
 
 
-    
-     amqp_session
-    .create_consumer_with_delegate(
-        CreateConsumer {
-            queue_name: &queue_name,
-            consumer_name: "quote-consumer",
-            ..Default::default()
-        },
-        |delivery: DeliveryResult| async {
-            if let Ok(Some((channel, delivery))) = delivery {
-               let payload = std::str::from_utf8(&delivery.data).unwrap();
-                info!("Message was: {}", payload);
-                channel
-                    .basic_ack(delivery.delivery_tag, BasicAckOptions::default())
-                    .map(|_| ())
-                    .await;
+    // Open connection.
+    let mut connection = Connection::insecure_open(&cli_options.server)?;
+
+    // Open a channel - None says let the library choose the channel ID.
+    let channel = connection.open_channel(None)?;
+
+    // Declare the "hello" queue.
+    let queue = channel.queue_declare("messages", QueueDeclareOptions::default())?;
+
+    // Start a consumer.
+    let consumer = queue.consume(ConsumerOptions::default())?;
+    info!("Waiting for messages. Press Ctrl-C to exit.");
+
+    for (i, message) in consumer.receiver().iter().enumerate() {
+        match message {
+            ConsumerMessage::Delivery(delivery) => {
+                let body = String::from_utf8_lossy(&delivery.body);
+                info!("({:>3}) Received [{}]", i, body);
+                consumer.ack(delivery)?;
             }
-        },
-    )
-    .await
-    .expect("create_consumer");
+            other => {
+                warn!("Consumer ended: {:?}", other);
+                break;
+            }
+        }
+        thread::sleep(time::Duration::from_secs(5));
+    }
 
-    let queue = amqp_session.create_queue(create_queue_op.clone()).await.expect("create_queue");
-
-    // if queue.message_count() <= 0 {
-    //     info!("Message queue is: {}", queue.message_count());
-    //     info!("All messages has been consumed!");
-
-    // }
-    // else {
-    //     warn!("Messages has not been consumed!");
-    // }
-
+    connection.close()
 
 }
