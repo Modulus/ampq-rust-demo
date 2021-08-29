@@ -25,15 +25,17 @@ jobs:
     runs-on: ubuntu-latest    
     steps:
       - uses: actions/checkout@v2
-      # - name: login
-      #   uses: docker/login-action@v1
-      #   with: 
-      #     registry: ghcr.io
-      #     username: ${{ github.repository_owner }}
-      #     password: ${{ secrets.CR_PAT }}
+      - name: login
+        uses: docker/login-action@v1
+        with: 
+          registry: ghcr.io
+          username: ${{ github.repository_owner }}
+          password: ${{ secrets.CR_PAT }}
       - name: Docker build producer
         run: docker build -t ghcr.io/modulus/ampq-demp-producer:latest -f Dockerfile.producer .
-      # - name: Docker push
-      #   run: docker push ghcr.io/modulus/shotlog:latest 
+      - name: Docker push
+        run: docker push ghcr.io/modulus/ampq-demp-producer:latest
       - name: Docker build consumer
-        run: docker build -t ghcr.io/modulus/ampq-demp-producer:latest -f Dockerfile.consumer .
+        run: docker build -t ghcr.io/modulus/ampq-demp-consumer:latest -f Dockerfile.consumer .
+      - name: Push consumer container
+        run: docker push ghcr.io/modulus/ampq-demp-consumer:latest 
