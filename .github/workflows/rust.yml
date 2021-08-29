@@ -23,6 +23,8 @@ jobs:
   package:
     needs: build 
     runs-on: ubuntu-latest    
+    strategy:
+      max-parallel: 2    
     steps:
       - uses: actions/checkout@v2
       - name: login
