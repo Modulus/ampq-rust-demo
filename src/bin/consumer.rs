@@ -47,7 +47,6 @@ async fn main() -> Result<()>{
                 break;
             }
         }
-        // thread::sleep(time::Duration::from_secs(5));
     }
 
     connection.close()

@@ -38,8 +38,10 @@ async fn main() -> Result<()>{
             exchange.publish(Publish::new(quote.as_bytes(), "messages"))?;
 
             debug!("Waiting...");
+            thread::sleep(time::Duration::from_secs(10));
+
             connection.close()?;
-            thread::sleep(time::Duration::from_secs(2));
+
         }
 
     
