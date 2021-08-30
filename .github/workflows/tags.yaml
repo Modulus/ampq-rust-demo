@@ -39,9 +39,9 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.CR_PAT }}
       - name: Docker build producer
-        run: docker build -t ghcr.io/modulus/ampq-demp-producer:${{ steps.vars.outputs.tag }} -f Dockerfile.producer .
+        run: docker build -t ghcr.io/modulus/ampq-demo-producer:${{ steps.vars.outputs.tag }} -f Dockerfile.producer .
       - name: Docker push
-        run: docker push ghcr.io/modulus/ampq-demp-producer:${{ steps.vars.outputs.tag }}
+        run: docker push ghcr.io/modulus/ampq-demo-producer:${{ steps.vars.outputs.tag }}
       - name: Docker build consumer
         run: docker build -t ghcr.io/modulus/ampq-demo-consumer:${{ steps.vars.outputs.tag }} -f Dockerfile.consumer .
       - name: Push consumer container
