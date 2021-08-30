@@ -17,8 +17,11 @@ spec:
       - name: producer
         image: ghcr.io/modulus/ampq-demo-producer:0.1.1
         resources:
-          limits:
+          requests:
             memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
             cpu: "500m"
         env:
           - name: SERVER
@@ -47,8 +50,11 @@ spec:
       - name: consumer
         image: ghcr.io/modulus/ampq-demo-consumer:0.1.1
         resources:
-          limits:
+          requests:
             memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
             cpu: "500m"
         env:
           - name: SERVER
