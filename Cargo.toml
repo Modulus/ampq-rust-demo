@@ -16,6 +16,7 @@ path = "src/bin/quotes.rs"
 
 [dependencies]
 amiquip = { version = "0.4", default-features = false }
+azure_sdk_service_bus = "0.44.2"
 structopt = "0.3"
 env_logger = "0.9"
 log = "0.4"

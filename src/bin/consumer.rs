@@ -1,5 +1,3 @@
-use std::{thread, time};
-
 use ampq_rust_demo::options::Options;
 
 use env_logger::Env;

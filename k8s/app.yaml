@@ -30,6 +30,8 @@ spec:
             value: INFO
           - name: RUST_BACKTRACE
             value: full
+          - name: SLEEP_SECONDS
+            value: 1
 ---
 apiVersion: apps/v1
 kind: Deployment

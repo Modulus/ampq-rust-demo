@@ -20,9 +20,11 @@ services:
     restart: always
     environment: 
       SERVER: "amqp://guest:guest@rabbitmq:5672"
+      # SERVER: "Endpoint=sb://imove-test-events.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=EtfXbqbJvJqiZARe0pt2W99Re06WYl5hZ94xjNi+DNs="
       LEVEL: INFO
       RUST_BACKTRACE: full 
       RUST_LOG: INFO
+      SLEEP_SECONDS: 1
     depends_on: 
       - rabbitmq
     networks:
@@ -34,6 +36,7 @@ services:
     restart: always
     environment: 
       SERVER: "amqp://guest:guest@rabbitmq:5672"
+      # SERVER: "Endpoint=sb://imove-test-events.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=EtfXbqbJvJqiZARe0pt2W99Re06WYl5hZ94xjNi+DNs="
       LEVEL: INFO
       RUST_BACKTRACE: full
       RUST_LOG: INFO

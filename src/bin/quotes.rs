@@ -1,11 +1,10 @@
 
 use serde::Deserialize;
-use reqwest;
 use reqwest::Error;
 
 #[derive(Deserialize, Debug)]
 pub struct Message {
-    data: Vec<String>
+    pub data: Vec<String>
 }
 
 #[tokio::main]

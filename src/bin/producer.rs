@@ -9,7 +9,6 @@ use ampq_rust_demo::options::Options;
 use structopt::StructOpt;
 
 
-
 #[tokio::main]
 async fn main() -> Result<()>{
     info!("Producer started!");
@@ -17,6 +16,7 @@ async fn main() -> Result<()>{
 
     debug!("server: {}", cli_options.server);
     debug!("level: {}", cli_options.level);
+    debug!("sleep seconds: {}", cli_options.sleep_seconds);
     env_logger::Builder::from_env(Env::default().default_filter_or(cli_options.level)).init();
 
 
@@ -32,13 +32,21 @@ async fn main() -> Result<()>{
         
             // Get a handle to the direct exchange on our channel.
             let exchange = Exchange::direct(&channel);
+
+
+            info!("Connecting to service bus....");
+
+            // let client = Client::new()
+
+
+
             let client = QuoteClient{url: format!("http://loremricksum.com/api/?paragraphs={paragraphs}&quotes={quotes}", paragraphs=1, quotes=1)};
             let quote = client.get().await;
             info!("Sending quote: {}", quote);
             exchange.publish(Publish::new(quote.as_bytes(), "messages"))?;
 
-            debug!("Waiting...");
-            thread::sleep(time::Duration::from_secs(10));
+            debug!("Waiting {}...", cli_options.sleep_seconds);
+            thread::sleep(time::Duration::from_secs(cli_options.sleep_seconds));
 
             connection.close()?;
 
